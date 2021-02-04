@@ -16,12 +16,14 @@ from torchvision import models as models
 
 parser = argparse.ArgumentParser()
 parser.add_argument('checkpoint')
+parser.add_argument('image_path')
 parser.add_argument('--top_k', type=int,default=5)
 parser.add_argument('--category_names',default="cat_to_name.json" )
 parser.add_argument('--gpu', default="cuda")
 args = parser.parse_args()
 
 checkpoint = args.checkpoint
+image_path = args.image_path
 top_k = args.top_k
 category_names = args.category_names
 device = args.gpu
@@ -53,8 +55,15 @@ valid_load = torch.utils.data.DataLoader(val_data, batch_size=32, shuffle=True)
         
 def load_model(checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
-    
-    model = models.vgg11(pretrained=True)
+    arch = checkpoint['arch']
+    if arch == 'vgg11':
+        model = models.vgg11(pretrained=True)
+    elif arch == 'vgg13':
+        model = models.vgg13(pretrained=True)
+    elif arch == 'vgg16':
+        model = models.vgg16(pretrained=True)
+    elif arch == 'vgg19':
+        model = models.vgg19(pretrained=True)
     
     for param in model.parameters():
         param.requires_grad = False
@@ -126,7 +135,7 @@ def predict(image_path, model, topk=5):
         outputs = model(image)
         probs, classes = torch.exp(outputs).topk(topk)
         return probs[0].tolist(), classes[0].add(1).tolist()
-    flowers_list = [cat_to_name[str(index + 1)] for index in np.array(p[1][0])]
+    flowers_list = [cat_to_name[str(index)] for index in np.array(p[1][0])]
    
     return score, flowers_list
 
@@ -136,17 +145,10 @@ def display_prediction(image_path,model):
     probs, classes = predict(image_path,model)
     plant_classes = [cat_to_name[str(cls)] + "({})".format(str(cls)) for cls in classes]
     im = Image.open(image_path)
-    fig, ax = plt.subplots(2,1)
-    ax[0].imshow(im);
-    y_positions = np.arange(len(plant_classes))
-    ax[1].barh(y_positions,probs,color='blue')
-    ax[1].set_yticks(y_positions)
-    ax[1].set_yticklabels(plant_classes)
-    ax[1].invert_yaxis()  # labels read top-to-bottom
-    ax[1].set_xlabel('Accuracy (%)')
-    ax[0].set_title('Top 5 Flower Predictions')
-    return None
+    probability = probs
+    print(plant_classes)
+    print(classes)
+    print(probability)
 
 
-
-display_prediction('flowers/train/1/image_06734.jpg','checkpoint.pth')
+display_prediction(image_path, checkpoint)

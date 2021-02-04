@@ -17,8 +17,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('data_dir', help="input the data dir to train the model")
 parser.add_argument('--save_dir', help="input the format to save the model", default="checkpoint.pth")
 parser.add_argument('--arch', default="vgg11", help="enter the pretrained model u want to work with")
-parser.add_argument('--learning_rate', default=0.001, help="enter the learning rate for the optmiers")
-parser.add_argument('--hidden_units', default=4096, help="number of units in the hidden layer")
+parser.add_argument('--learning_rate', default=0.001, type=int,help="enter the learning rate for the optmiers")
+parser.add_argument('--hidden_units', default=4096,type=int,  help="number of units in the hidden layer")
 parser.add_argument('--epochs', default=3 ,type=int , help="number of epochs you wan to train with")
 parser.add_argument('--gpu', default="cuda", help="enter cuda if u want to train on a gpu or cpu if u don't")
 args = parser.parse_args()
@@ -125,12 +125,14 @@ def check_validation_set(valid_loader,device='cpu'):
     correct = 0
     total = 0
     with torch.no_grad():
+        model.eval()
         for data in valid_loader:
             images, labels = data[0].to(device), data[1].to(device)
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+    model.train()
     return correct / total
 
 
@@ -144,12 +146,14 @@ def check_accuracy_on_test(testloader,device='cpu'):
     correct = 0
     total = 0
     with torch.no_grad():
+        model.eval()
         for data in testloader:
             images, labels = data[0].to(device), data[1].to(device)
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+    model.train()
     print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
     return correct / total
 
