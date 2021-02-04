@@ -16,7 +16,7 @@ from torchvision import models as models
 
 parser = argparse.ArgumentParser()
 parser.add_argument('checkpoint')
-parser.add_argument('--top_k', default=5)
+parser.add_argument('--top_k', type=int,default=5)
 parser.add_argument('--category_names',default="cat_to_name.json" )
 parser.add_argument('--gpu', default="cuda")
 args = parser.parse_args()

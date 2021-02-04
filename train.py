@@ -19,7 +19,7 @@ parser.add_argument('--save_dir', help="input the format to save the model", def
 parser.add_argument('--arch', default="vgg11", help="enter the pretrained model u want to work with")
 parser.add_argument('--learning_rate', default=0.001, help="enter the learning rate for the optmiers")
 parser.add_argument('--hidden_units', default=4096, help="number of units in the hidden layer")
-parser.add_argument('--epochs', default=3 , help="number of epochs you wan to train with")
+parser.add_argument('--epochs', default=3 ,type=int , help="number of epochs you wan to train with")
 parser.add_argument('--gpu', default="cuda", help="enter cuda if u want to train on a gpu or cpu if u don't")
 args = parser.parse_args()
 
@@ -154,7 +154,7 @@ def check_accuracy_on_test(testloader,device='cpu'):
     return correct / total
 
 
-check_accuracy_on_test(test_load,'cuda')
+check_accuracy_on_test(test_load,device)
 
 
 model.class_to_idx = train_data.class_to_idx
@@ -163,7 +163,7 @@ checkpoint ={'arch': arch,
             'state_dict': model.state_dict(),
             'class_to_idx': model.class_to_idx}
 
-torch.save(checkpoint, 'checkpoint.pth')
+torch.save(checkpoint, save_dir)
 
 
 
